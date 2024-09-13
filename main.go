@@ -3,7 +3,7 @@ package main
 import (
 	controller "TodoList/controllers"
 	"TodoList/database"
-	"TodoList/utils"
+	"TodoList/routes"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"log"
@@ -22,11 +22,11 @@ func main() {
 	database.InitDB()
 
 	// router
-	router.GET(utils.Path.GetTodo, controller.GetTodo)
-	router.POST("/todos", CreateTodo)
-	router.GET("/todos/:id", GetTodoByID)
-	router.PUT("/todos/:id", UpdateTodo)
-	router.DELETE("/todos/:id", DeleteTodo)
+	router.GET(routes.Path.GetTodo, controller.GetTodos)
+	router.POST(routes.Path.CreateTodo, controller.CreateTodo)
+	router.GET(routes.Path.GetTodoByID, controller.GetTodoByID)
+	router.PUT(routes.Path.UpdateTodo, controller.UpdateTodo)
+	router.DELETE(routes.Path.DeleteTodo, controller.DeleteTodo)
 
 	port := os.Getenv("PORT")
 	if port == "" {
