@@ -5,3 +5,8 @@ type Todo struct {
 	Title  string `json:"title"`
 	Status bool   `json:"status"`
 }
+
+type InputTodo struct {
+	Title  string `json:"title" binding:"required"`
+	Status bool   `json:"status" binding:"required"`
+}

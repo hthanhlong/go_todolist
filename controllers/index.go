@@ -8,6 +8,10 @@ import (
 )
 
 func GetTodos(c *gin.Context) {
+	var todos []structs.Todo
+	database.DB.Find(&todos)
+	c.JSON(http.StatusOK, gin.H{"data": todos})
+
 }
 
 func GetTodoByID(c *gin.Context) {
@@ -22,13 +26,10 @@ func GetTodoByID(c *gin.Context) {
 
 func CreateTodo(c *gin.Context) {
 	// create input sample
-	var input struct {
-		Title  string `json:"title" binding:"required"`
-		Status bool   `json:"status" binding:"required"`
-	}
+	var input structs.InputTodo
 
 	if err := c.ShouldBindJSON(&input); err != nil {
-		// reponse to client with an bad request
+		// response to client with an bad request
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 
@@ -47,9 +48,34 @@ func CreateTodo(c *gin.Context) {
 }
 
 func UpdateTodo(c *gin.Context) {
+	var todo structs.Todo
+	params := c.Param("id")
+
+	if err := database.DB.Where("id = ?", params).First(&todo).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Todo not found"})
+		return
+	}
+
+	var input structs.InputTodo
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	database.DB.Model(&todo).Updates(structs.Todo{Title: input.Title, Status: input.Status})
+
+	c.JSON(http.StatusOK, gin.H{"data": todo})
 
 }
 
 func DeleteTodo(c *gin.Context) {
-
+	var todo structs.Todo
+	params := c.Param("id")
+	if err := database.DB.Where("id = ?", params).First(&todo).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Todo not found"})
+		return
+	}
+	database.DB.Delete(&todo)
+	c.JSON(http.StatusOK, gin.H{"data": true})
 }
